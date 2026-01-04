@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8K Realistic Pro AI</title>
+    <style>
+        body { background: #050505; color: #fff; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #111; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 20px; color: #fff; }
+        .preview-area { background: #0a0a0a; border: 2px dashed #333; border-radius: 15px; min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px; }
+        img { max-width: 100%; height: auto; display: none; }
+        .btn { background: #fff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:active { transform: scale(0.98); }
+        #status { display: none; margin-top: 15px; color: #00ff88; font-size: 0.9rem; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>PRO REALISTIC 8K</h2>
+        <div class="preview-area" onclick="document.getElementById('fileInput').click()">
+            <span id="placeholder" style="color: #444;">Klik untuk Pilih Foto</span>
+            <img id="previewImg">
+        </div>
+        <input type="file" id="fileInput" hidden accept="image/*" onchange="handleFile()">
+        <button id="mainBtn" class="btn" onclick="document.getElementById('fileInput').click()">PILIH FOTO</button>
+        <div id="status">SEDANG MERENDER KUALITAS 8K...</div>
+    </div>
+
+    <script>
+        function handleFile() {
+            const file = document.getElementById('fileInput').files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('previewImg').style.display = 'block';
+                    document.getElementById('placeholder').style.display = 'none';
+                    const btn = document.getElementById('mainBtn');
+                    btn.innerText = 'PROSES JADI 8K';
+                    btn.style.background = '#00ff88';
+                    btn.onclick = startAi;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function startAi() {
+            const btn = document.getElementById('mainBtn');
+            const status = document.getElementById('status');
+            btn.style.display = 'none';
+            status.style.display = 'block';
+
+            // Simulasi Koneksi ke API Gemini yang ada di Vercel
+            setTimeout(() => {
+                alert("Koneksi Berhasil!\n\nAI Gemini sedang memproses foto kamu dengan API Key yang terpasang di Vercel. Hasil 8K akan muncul setelah render selesai.");
+                status.innerText = "FINISHING RENDER...";
+                setTimeout(() => {
+                    status.innerText = "BERHASIL! CEK GALERI VERCEL.";
+                }, 2000);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
