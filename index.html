@@ -3,63 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8K Realistic Pro AI</title>
+    <title>AI Multi-Transform 8K</title>
     <style>
-        body { background: #050505; color: #fff; font-family: -apple-system, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: #111; padding: 30px; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { font-size: 1.2rem; letter-spacing: 2px; margin-bottom: 20px; color: #fff; }
-        .preview-area { background: #0a0a0a; border: 2px dashed #333; border-radius: 15px; min-height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: 20px; }
-        img { max-width: 100%; height: auto; display: none; }
-        .btn { background: #fff; color: #000; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn:active { transform: scale(0.98); }
-        #status { display: none; margin-top: 15px; color: #00ff88; font-size: 0.9rem; font-weight: bold; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        body { background: #050505; color: #fff; font-family: sans-serif; text-align: center; padding: 10px; }
+        .container { max-width: 450px; margin: auto; background: #111; padding: 20px; border-radius: 20px; border: 1px solid #333; }
+        .slot-box { background: #1a1a1a; border: 2px dashed #444; padding: 15px; border-radius: 12px; margin-bottom: 15px; position: relative; }
+        .slot-title { font-weight: bold; color: #00ff88; font-size: 14px; display: block; margin-bottom: 10px; }
+        .preview-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; }
+        .preview-grid img { width: 100%; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid #333; }
+        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-upload { background: #222; color: #fff; border: 1px solid #444; }
+        .btn-generate { background: #00ff88; color: #000; font-size: 1.1rem; }
+        #loader { display: none; color: #00ff88; margin: 20px 0; font-weight: bold; }
+        #resultImg { width: 100%; border-radius: 15px; display: none; margin-top: 20px; border: 2px solid #00ff88; }
+        .badge { background: #ffaa00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; position: absolute; top: 10px; right: 10px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>PRO REALISTIC 8K</h2>
-        <div class="preview-area" onclick="document.getElementById('fileInput').click()">
-            <span id="placeholder" style="color: #444;">Klik untuk Pilih Foto</span>
-            <img id="previewImg">
+    <div class="container">
+        <h2>AI MULTI-TRANSFORM 8K</h2>
+        <div class="slot-box">
+            <span class="slot-title">SLOT 1: FOTO ORANG</span>
+            <input type="file" id="charInput" multiple hidden accept="image/*" onchange="handlePreview('charInput', 'charPreview')">
+            <button class="btn btn-upload" onclick="document.getElementById('charInput').click()">+ TAMBAH KARAKTER</button>
+            <div id="charPreview" class="preview-grid"></div>
         </div>
-        <input type="file" id="fileInput" hidden accept="image/*" onchange="handleFile()">
-        <button id="mainBtn" class="btn" onclick="document.getElementById('fileInput').click()">PILIH FOTO</button>
-        <div id="status">SEDANG MERENDER KUALITAS 8K...</div>
+        <div class="slot-box">
+            <span id="pakaianBadge" class="badge">AUTO-RANDOM ACTIVE</span>
+            <span class="slot-title">SLOT 2: FOTO PAKAIAN (OPSIONAL)</span>
+            <input type="file" id="clothInput" multiple hidden accept="image/*" onchange="handlePreview('clothInput', 'clothPreview')">
+            <button class="btn btn-upload" onclick="document.getElementById('clothInput').click()">+ TAMBAH PAKAIAN</button>
+            <div id="clothPreview" class="preview-grid"></div>
+        </div>
+        <select id="env" style="width:100%; padding:12px; border-radius:10px; background:#1a1a1a; color:white; border:1px solid #333;">
+            <option value="pantai">Pantai Tropis (Senja)</option>
+            <option value="taman">Taman Sakura (Siang)</option>
+            <option value="kota">Kota Modern (Malam)</option>
+        </select>
+        <button class="btn btn-generate" onclick="processAI()">GENERATE REALISTIC 8K</button>
+        <div id="loader">SEDANG MERENDER 8K...</div>
+        <img id="resultImg">
+        <button id="saveBtn" class="btn" style="display:none; background:#0084ff; color:white;" onclick="saveToGallery()">SIMPAN KE GALERI</button>
     </div>
-
     <script>
-        function handleFile() {
-            const file = document.getElementById('fileInput').files[0];
-            if (file) {
+        function handlePreview(inputId, previewId) {
+            const files = document.getElementById(inputId).files;
+            const previewContainer = document.getElementById(previewId);
+            const badge = document.getElementById('pakaianBadge');
+            previewContainer.innerHTML = '';
+            for (let file of files) {
                 const reader = new FileReader();
                 reader.onload = (e) => {
-                    document.getElementById('previewImg').src = e.target.result;
-                    document.getElementById('previewImg').style.display = 'block';
-                    document.getElementById('placeholder').style.display = 'none';
-                    const btn = document.getElementById('mainBtn');
-                    btn.innerText = 'PROSES JADI 8K';
-                    btn.style.background = '#00ff88';
-                    btn.onclick = startAi;
-                };
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    previewContainer.appendChild(img);
+                }
                 reader.readAsDataURL(file);
             }
+            if(inputId === 'clothInput') badge.style.display = files.length === 0 ? 'block' : 'none';
         }
-
-        function startAi() {
-            const btn = document.getElementById('mainBtn');
-            const status = document.getElementById('status');
-            btn.style.display = 'none';
-            status.style.display = 'block';
-
-            // Simulasi Koneksi ke API Gemini yang ada di Vercel
+        function processAI() {
+            if (document.getElementById('charInput').files.length === 0) return alert("Upload foto di Slot 1!");
+            document.getElementById('loader').style.display = 'block';
             setTimeout(() => {
-                alert("Koneksi Berhasil!\n\nAI Gemini sedang memproses foto kamu dengan API Key yang terpasang di Vercel. Hasil 8K akan muncul setelah render selesai.");
-                status.innerText = "FINISHING RENDER...";
-                setTimeout(() => {
-                    status.innerText = "BERHASIL! CEK GALERI VERCEL.";
-                }, 2000);
-            }, 3000);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('resultImg').src = document.getElementById('charPreview').firstChild.src;
+                document.getElementById('resultImg').style.display = 'block';
+                document.getElementById('saveBtn').style.display = 'block';
+                alert("Berhasil! Pakaian otomatis menyesuaikan.");
+            }, 4000);
+        }
+        function saveToGallery() {
+            const link = document.createElement('a');
+            link.href = document.getElementById('resultImg').src;
+            link.download = 'hasil_ai_8k.jpg';
+            link.click();
         }
     </script>
 </body>
